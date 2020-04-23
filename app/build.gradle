@@ -1,0 +1,68 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion = '29.0.3'
+
+    defaultConfig {
+        applicationId "com.example.maokaixin.myapplication"
+        minSdkVersion 14 // 如果您的 minSdkVersion 设为 21 或更高的值，则默认情况下启用多 dex 文件，并且您不需要多 dex 文件支持库
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        multiDexEnabled true
+        multiDexKeepFile file("maindexlist.txt") // 当前项目中指定的classes，编译到主class.dex中；maindexlist在当前项目根目录
+        multiDexKeepProguard file("multiDexKeep.pro") // 防止混淆的类找不到，加白名单Proguard rules 指定的类，编译到主class.dex中
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+            shrinkResources false // 打包时是否去除无效的资源文件，基于 minifyEnabled true时才会生效；设置值为true，打包后未用到的资源在包内只保留文件名，而不保留文件
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'multiDexKeep.pro'
+        }
+    }
+
+    dexOptions{ // 这个task暂时不起作用，不知道什么原因，大概和as版本有关2020.4.23
+        javaMaxHeapSize "4g" //设置运行 dx 的最大内存
+        jumboMode true //每个 dex 的字符串索引也有限制，正常情况下为 2^16 个。但开启jumboMode 模式，可以支持到 2^32。但是值得注意的是，这个并不是 64K方法数量限制问题的一种方案。
+        preDexLibraries = false // 预编译 dex 库。在我们build的时候会快些，但clean时便会慢，默认开启
+        additionalParameters '--set-max-idx-number=30000','--minimal-main-dex'
+
+//        additionalParameters = [    //配置multidex参数
+//                                    '--multi-dex',//多dex分包 ，作用相当于 multiDexEnabled true
+//                                    '--set-max-idx-number=30000',//每个包内方法数上限
+//                                    '--main-dex-list=' + projectDir + '/maindexlist.txt', //打包到主classes.dex的文件列表
+//                                    '--minimal-main-dex'
+//        ]
+    }
+
+//    dexOptions {
+        //--multi-dex:相当于设置multiDexEnable为true
+        //--minimal-main-dex:最小化生成main dex
+        //--set-max-idx-number:每个dex最大方法数
+//        additionalParameters '--multi-dex','--minimal-main-dex','--set-max-idx-number=5000'
+        //javaMaxHeapSize "4g"//指定-Xmx调用dx时的值。示例值为"2048m"。
+//        jumboMode true
+//        keepRuntimeAnnotatedClasses 在传统multidex中，将所有具有运行时注释的类保留在主dex中。
+//        maxProcessCount             可以用于dex的并发进程的最大数量。默认为4。
+//        preDexLibraries             是否为dex图书馆。这可以改进增量版本，但干净的构建可能会更慢。
+//        threadCount                 运行dx时使用的线程数。默认为4。
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    implementation 'com.android.support:multidex:1.0.3'
+}

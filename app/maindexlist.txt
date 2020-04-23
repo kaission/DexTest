@@ -1,0 +1,4 @@
+com/example/maokaixin/myapplication/MainActivity.class
+com/example/maokaixin/myapplication/MyApplication.class
+com/example/maokaixin/myapplication/OneDexClass.class
+com/example/maokaixin/myapplication/Method20000.class
