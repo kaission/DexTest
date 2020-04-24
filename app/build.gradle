@@ -17,6 +17,10 @@ android {
         multiDexKeepProguard file("multiDexKeep.pro") // 防止混淆的类找不到，加白名单Proguard rules 指定的类，编译到主class.dex中
     }
 
+    packagingOptions {//加上这写代码，有关模块测试出来的  More than one file was found with OS independent path 'META-INF/INDEX.LIST'
+        pickFirst 'META-INF/*'
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -33,7 +37,7 @@ android {
         javaMaxHeapSize "4g" //设置运行 dx 的最大内存
         jumboMode true //每个 dex 的字符串索引也有限制，正常情况下为 2^16 个。但开启jumboMode 模式，可以支持到 2^32。但是值得注意的是，这个并不是 64K方法数量限制问题的一种方案。
         preDexLibraries = false // 预编译 dex 库。在我们build的时候会快些，但clean时便会慢，默认开启
-        additionalParameters '--set-max-idx-number=30000','--minimal-main-dex'
+        additionalParameters '--multi-dex','--set-max-idx-number=30000','--minimal-main-dex'
 
 //        additionalParameters = [    //配置multidex参数
 //                                    '--multi-dex',//多dex分包 ，作用相当于 multiDexEnabled true
@@ -65,4 +69,5 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'com.android.support:multidex:1.0.3'
+    implementation 'org.jboss.forge.addon:mockito:2.13.0'
 }
